@@ -157,5 +157,22 @@ RSpec.describe ChessPiece do
     end
   end
 
+  describe "#take_piece" do
+    context "given a black piece at [4,4] and a white piece at [5,5] and a black piece at [3,3]" do
+      let(:game) {Game.create}
+      let(:piece) {ChessPiece.create(position_x: 4, position_y: 4, game: game, color: "Black")}
+      let(:second_piece) {ChessPiece.create(position_x: 5, position_y: 5, game: game, color: "White")}
+      let(:third_piece) {ChessPiece.create(position_x: 3, position_y: 3, game: game, color: "Black")}
+      it "will update piece to new coordinates if piece.color != second_piece.color" do
+        second_piece
+        expect(piece.take_piece(5,5)).to eq(piece(position_x: 5, position_y: 5, game: game, color: "Black"))
+      end
+      it "will not update piece if piece.color == third_piece.color" do
+        third_piece
+        expect(piece.take_piece(3,3)).not_to eql(piece(position_x: 3, position_y: 3, game: game, color: "Black"))
+      end
+    end
+  end
+
 
 end
