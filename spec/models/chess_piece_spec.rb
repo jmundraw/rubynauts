@@ -163,13 +163,20 @@ RSpec.describe ChessPiece do
       let(:piece) {ChessPiece.create(position_x: 4, position_y: 4, game: game, color: "Black")}
       let(:second_piece) {ChessPiece.create(position_x: 5, position_y: 5, game: game, color: "White")}
       let(:third_piece) {ChessPiece.create(position_x: 3, position_y: 3, game: game, color: "Black")}
-      it "will update piece to new coordinates if piece.color != second_piece.color" do
-        second_piece
-        expect(piece.take_piece(5,5)).to eq(piece(position_x: 5, position_y: 5, game: game, color: "Black"))
+      it "will update piece to new coordinates and eat piece" do
+        piece.take_piece(second_piece.position_x, second_piece.position_y)
+
+        piece.reload
+        expect(piece.position_x).to eq(second_piece.position_x)
+        expect(piece.position_y).to eq(second_piece.position_y)
+        expect(ChessPiece.find_by(id: second_piece.id)).to be_nil
       end
       it "will not update piece if piece.color == third_piece.color" do
-        third_piece
-        expect(piece.take_piece(3,3)).not_to eql(piece(position_x: 3, position_y: 3, game: game, color: "Black"))
+        piece.reload
+        piece.take_piece(third_piece.position_x, third_piece.position_y)
+        expect(piece.position_x).not_to eql(third_piece.position_x)
+        expect(piece.position_y).not_to eql(third_piece.position_y)
+        expect(ChessPiece.find_by(id: third_piece.id)).to be_truthy
       end
     end
   end
