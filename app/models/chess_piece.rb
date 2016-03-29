@@ -18,11 +18,11 @@ class ChessPiece < ActiveRecord::Base
 
   def horizontally_obstructed?(endpoint_x, endpoint_y)
     if endpoint_x > position_x
-      ((position_x + 1)..endpoint_x).find do |x|
+      ((position_x + 1)..(endpoint_x - 1)).find do |x|
         game.piece_in_square?(x, endpoint_y)
       end
     else
-      ((position_x - 1).downto(endpoint_x)).find do |x|
+      ((position_x - 1).downto(endpoint_x + 1)).find do |x|
         game.piece_in_square?(x, endpoint_y)
       end
     end
@@ -58,11 +58,11 @@ class ChessPiece < ActiveRecord::Base
 
   def vertically_obstructed?(endpoint_x, endpoint_y)
     if endpoint_y > position_y
-      ((position_y + 1)..endpoint_y).find do |y|
+      ((position_y + 1)..(endpoint_y - 1)).find do |y|
         game.piece_in_square?(endpoint_x, y)
       end
     else
-      ((position_y - 1).downto(endpoint_y)).find do |y|
+      ((position_y - 1).downto(endpoint_y + 1)).find do |y|
         game.piece_in_square?(endpoint_x, y)
       end
     end
@@ -80,7 +80,7 @@ class ChessPiece < ActiveRecord::Base
     elsif diagonal_move?(endpoint_x, endpoint_y)
       return diagonally_obstructed?(endpoint_x, endpoint_y)
     else
-      return 'Invalid Move'
+      return false
     end
   end
 
@@ -90,6 +90,22 @@ class ChessPiece < ActiveRecord::Base
     if self.color != opponent_piece.color
       opponent_piece.destroy
     else 
+      return false
+    end
+  end
+
+  ##for testing purposes
+  def valid_move?(*_args)
+    true
+  end
+
+  def take_piece(endpoint_x, endpoint_y)
+    if (self.legal_move?(endpoint_x,endpoint_y) && 
+        !self.is_obstructed?(endpoint_x, endpoint_y) && 
+        self.valid_move?(endpoint_x,endpoint_y) && 
+        self.capture(endpoint_x, endpoint_y))
+      self.update_attributes(:position_x => endpoint_x, :position_y => endpoint_y)
+    else
       return false
     end
   end
